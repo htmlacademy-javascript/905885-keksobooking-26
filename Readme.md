@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг»
 
 * Студент: [Линар Агадуллин](https://up.htmlacademy.ru/javascript/26/user/905885).
-* Наставник: `Неизвестно`.
+* Наставник: [Артем Макаров](https://htmlacademy.ru/profile/deepsick).
 
 ---
 
