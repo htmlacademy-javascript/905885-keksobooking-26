@@ -19,17 +19,17 @@ const getRandomArrayElement = (elements) => elements[getRandomInteger(0, element
 
 const generateArrayList = (elements) => {
   const arrayLength = getRandomInteger(0, elements.length);
-  const temporaryArray = [];
+  const tempElements = [];
 
   for (let i = 0; i < arrayLength; i++) {
     const arrayElement = getRandomArrayElement(elements);
 
-    if (!temporaryArray.includes(arrayElement)) {
-      temporaryArray.push(arrayElement);
+    if (!tempElements.includes(arrayElement)) {
+      tempElements.push(arrayElement);
     }
   }
 
-  return temporaryArray;
+  return tempElements;
 };
 
 export {getRandomInteger, getRandomFloat, getRandomArrayElement, generateArrayList};
