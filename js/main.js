@@ -1,46 +1,119 @@
-function getRandomNumber (min, max) {
-  let message = '';
+const ADS_COUNT = 10;
 
-  if (min, max < 0) {
-    message = `Диапазон не может быть отрицательным, Возможно вы имели ввиду этот диапазон: (${  Math.abs(min)  },${  Math.abs(max)  }), тогда среднее значение: `;
-  }
+const AVATARS = [
+  'img/avatars/user01.png',
+  'img/avatars/user02.png',
+  'img/avatars/user03.png',
+  'img/avatars/user04.png',
+  'img/avatars/user05.png',
+  'img/avatars/user06.png',
+  'img/avatars/user07.png',
+  'img/avatars/user08.png',
+  'img/avatars/user09.png',
+  'img/avatars/user10.png'
+];
 
-  if (min >= max) {
-    return 'Неверно указан диапазон';
-  }
+const TYPES = [
+  'palace',
+  'flat',
+  'house',
+  'bungalow',
+  'hotel'
+];
 
-  min = Math.ceil(Math.abs(min));
-  max = Math.floor(Math.abs(max));
+const CHECKINS = [
+  '12:00',
+  '13:00',
+  '14:00'
+];
 
-  const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+const CHECKOUTS = [
+  '12:00',
+  '13:00',
+  '14:00'
+];
 
-  return (message + randomNumber);
+const FEATURES = [
+  'wifi',
+  'dishwasher',
+  'parking',
+  'washer',
+  'elevator',
+  'conditioner'
+];
+
+const PHOTOS = [
+  'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/duonguyen-8LrGtIxxa4w.jpg',
+  'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg',
+  'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/claire-rendall-b6kAwr1i0Iw.jpg'
+];
+
+function getRandomInteger (min, max) {
+  const minNumber = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
+  const maxNumber = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
+
+  const randomNumber = Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
+
+  return randomNumber;
 }
 
-function getRandomDotNumber (min, max, amount) {
-  let message = '';
+function getRandomFloat (min, max, amount) {
+  const minNumber = Math.min(Math.abs(min), Math.abs(max));
+  const maxNumber = Math.max(Math.abs(min), Math.abs(max));
+  const randomNumber = Math.random() * (maxNumber - minNumber) + minNumber;
 
-  if (min, max < 0) {
-    message = `Диапазон не может быть отрицательным, Возможно вы имели ввиду этот диапазон: (${  Math.abs(min)  },${  Math.abs(max)  }), тогда число будет: `;
-  }
-
-  if (min >= max) {
-    return 'Неверно указан диапазон';
-  }
-
-  min = Math.abs(min);
-  max = Math.abs(max);
-  let randomNumber = Math.random() * (max - min + 1) + min;
-
-  if (randomNumber > max) {
-    randomNumber = max;
-  }
-
-  const range = randomNumber.toFixed(amount);
-
-  return (message + range);
+  return +randomNumber.toFixed(amount);
 }
 
-getRandomNumber(-1, -5);
+const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-getRandomDotNumber(1, 5, 4);
+
+const generateArrayList = (elements) => {
+  const arrayLength = getRandomInteger(0, elements.length);
+  const temporaryArray = [];
+
+  for (let i = 0; i < arrayLength; i++) {
+    const arrayElement = getRandomArrayElement(elements);
+
+    if (!temporaryArray.includes(arrayElement)) {
+      temporaryArray.push(arrayElement);
+    }
+  }
+
+  return temporaryArray;
+};
+
+const generateLocation = () => {
+  const latitide = getRandomFloat(35.65000, 35.70000, 5);
+  const longtude = getRandomFloat(139.70000, 139.80000, 5);
+
+  return {
+    lat: latitide,
+    lng: longtude
+  };
+};
+
+const createAuthor = () => ({
+  author: getRandomArrayElement(AVATARS)
+});
+
+const createAd = () => ({
+  title: 'Объявление!',
+  address: (generateLocation()),
+  price: getRandomInteger(10000, 100000),
+  type: getRandomArrayElement(TYPES),
+  rooms: getRandomInteger(1, 10),
+  guests: getRandomInteger(1, 10),
+  checkin: getRandomArrayElement(CHECKINS),
+  checkout: getRandomArrayElement(CHECKOUTS),
+  features: generateArrayList(FEATURES),
+  description: 'Прекрасное место для вас и ваших гостей!',
+  photos: generateArrayList(PHOTOS)
+});
+
+const createAuthorsList = () => Array.from({length: ADS_COUNT}, createAuthor);
+
+const createAdsList = () => Array.from({length: ADS_COUNT}, createAd);
+
+createAdsList();
+createAuthorsList();
