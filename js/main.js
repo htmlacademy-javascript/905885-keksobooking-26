@@ -1,4 +1,4 @@
-import {generateAuthors, generateAds} from './data.js';
+import { generateAds } from './ads.js';
+import './card.js';
 
 generateAds();
-generateAuthors();

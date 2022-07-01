@@ -60,11 +60,8 @@ const generateLocation = () => {
   };
 };
 
-const generateAuthor = () => ({
-  author: getRandomArrayElement(AVATARS)
-});
-
 const generateAd = () => ({
+  author: getRandomInteger(AVATARS),
   title: 'Объявление!',
   address: (generateLocation()),
   price: getRandomInteger(10000, 100000),
@@ -78,8 +75,6 @@ const generateAd = () => ({
   photos: generateArrayList(PHOTOS)
 });
 
-const generateAuthors = () => Array.from({length: ADS_COUNT}, generateAuthor);
-
 const generateAds = () => Array.from({length: ADS_COUNT}, generateAd);
 
-export {generateAuthors, generateAds};
+export {generateAds};
