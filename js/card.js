@@ -1,65 +1,72 @@
-import {generateAds} from './ads.js';
+import {generateAd} from './ads.js';
 
 const cardAd = document.querySelector('#card').content.querySelector('.popup');
-const insertionArea = document.querySelector('.map__canvas');
+const mapCanvas = document.querySelector('.map__canvas');
 
-const anotherAds = generateAds();
+const generateAds = (count) => Array.from({length: count}, generateAd);
 
-anotherAds.forEach((ad) => {
-  const newAd = cardAd.cloneNode(true);
+const anotherAds = generateAds(1);
 
-  const adList = newAd.querySelector('.popup__features');
-  const featureList = adList.querySelectorAll('.popup__feature');
-  const featureModifiers = ad.features.map((feature) => `popup__feature${  feature}`);
+const generateCards = () => {
 
-  const adPhotos = newAd.querySelector('.popup__photos');
-  const photosList = adPhotos.querySelectorAll('.popup__photo');
+  anotherAds.forEach((ad) => {
+    const newAd = cardAd.cloneNode(true);
 
-  for (let i = 0; i < ad.photos.length - 1; i++) {
-    photosList.cloneNode(true);
-    featureList.appendChild(photosList);
-  }
+    const adsList = newAd.querySelector('.popup__features');
+    const features = adsList.querySelectorAll('.popup__feature');
+    const featureModifiers = ad.features.map((feature) => `popup__feature--${feature}`);
 
-  for (let i = 0; i < ad.photos.length; i++) {
-    photosList[i].src = ad.photos[i];
-  }
+    const adPhotos = newAd.querySelector('.popup__photos');
+    const photos = adPhotos.querySelector('.popup__photo');
 
-  featureList.forEach((featureListItem) => {
-    const featureModifier = featureListItem.classList[1];
+    const newPhoto = photos.cloneNode(true);
+    adPhotos.innerHTML = '';
 
-    if (!featureModifiers.includes(featureModifier)) {
-      featureListItem.remove();
+    for (let i = 0; i < ad.photos.length; i++) {
+      const duplicateNewPhoto = newPhoto.cloneNode(true);
+      duplicateNewPhoto.src = ad.photos[i];
+      adPhotos.appendChild(duplicateNewPhoto);
     }
+
+    features.forEach((featureListItem) => {
+      const featureModifier = featureListItem.classList[1];
+
+      if (!featureModifiers.includes(featureModifier)) {
+        featureListItem.remove();
+      }
+    });
+
+    let housingType = '';
+
+    switch(ad.type) {
+      case 'flat':
+        housingType = 'Квартира';
+        break;
+      case 'bungalow':
+        housingType = 'Бунгало';
+        break;
+      case 'house':
+        housingType = 'Дом';
+        break;
+      case 'palace':
+        housingType = 'Дворец';
+        break;
+      case 'hotel':
+        housingType = 'Отель';
+        break;
+    }
+
+    newAd.querySelector('.popup__type').textContent = housingType;
+    newAd.querySelector('.popup__avatar').src = ad.author;
+    newAd.querySelector('.popup__title').textContent = ad.title;
+    newAd.querySelector('.popup__text--address').textContent = `${ad.address.lat}, ${ad.address.lng}`;
+    newAd.querySelector('.popup__text--price').textContent = `${ad.price} ₽/ночь`;
+    newAd.querySelector('.popup__text--capacity').textContent = `${ad.rooms} комнаты для ${ad.guests} гостей`;
+    newAd.querySelector('.popup__text--time').textContent = `Заезд после ${ad.checkin}, выезд до ${ad.checkout}`;
+    newAd.querySelector('.popup__description').textContent = ad.description;
+
+    mapCanvas.appendChild(newAd);
   });
+};
 
-  switch(ad.type) {
-    case 'flat':
-      ad.type = 'Квартира';
-      break;
-    case 'bungalow':
-      ad.type = 'Бунгало';
-      break;
-    case 'house':
-      ad.type = 'Дом';
-      break;
-    case 'palace':
-      ad.type = 'Дворец';
-      break;
-    case 'hotel':
-      ad.type = 'Отель';
-      break;
-  }
-
-  newAd.querySelector('.popup__type').textContent = ad.type;
-  newAd.querySelector('.popup__avatar').src = ad.author;
-  newAd.querySelector('.popup__title').textContent = ad.title;
-  newAd.querySelector('.popup__text--address').textContent = ad.address;
-  newAd.querySelector('.popup__text--price').textContent = `${ad.price  } ₽/ночь`;
-  newAd.querySelector('.popup__text--capacity').textContent = `${ad.rooms  } комнаты для ${  ad.guests  } гостей`;
-  newAd.querySelector('.popup__text--time').textContent = `Заезд после ${  ad.checkin  }, выезд до ${  ad.checkout}`;
-  newAd.querySelector('.popup__description').textContent = ad.description;
-
-  insertionArea.appendChild(newAd);
-});
-
-export {anotherAds};
+export {generateCards};

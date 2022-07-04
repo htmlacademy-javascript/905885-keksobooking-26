@@ -1,7 +1,5 @@
 import {getRandomInteger, getRandomFloat, getRandomArrayElement, generateArrayList} from './util.js';
 
-const ADS_COUNT = 10;
-
 const AVATARS = [
   'img/avatars/user01.png',
   'img/avatars/user02.png',
@@ -61,7 +59,7 @@ const generateLocation = () => {
 };
 
 const generateAd = () => ({
-  author: getRandomInteger(AVATARS),
+  author: getRandomArrayElement(AVATARS),
   title: 'Объявление!',
   address: (generateLocation()),
   price: getRandomInteger(10000, 100000),
@@ -75,6 +73,4 @@ const generateAd = () => ({
   photos: generateArrayList(PHOTOS)
 });
 
-const generateAds = () => Array.from({length: ADS_COUNT}, generateAd);
-
-export {generateAds};
+export {generateAd};
