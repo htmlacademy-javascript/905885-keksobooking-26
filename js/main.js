@@ -1,3 +1,6 @@
 import { generateCards } from  './card.js';
+import {inactiveState, activeState} from './form.js';
 
-generateCards();
+generateCards(1);
+inactiveState();
+activeState();
