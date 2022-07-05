@@ -5,11 +5,9 @@ const mapCanvas = document.querySelector('.map__canvas');
 
 const generateAds = (count) => Array.from({length: count}, generateAd);
 
-const anotherAds = generateAds(1);
+const generateCards = (ads) => {
 
-const generateCards = () => {
-
-  anotherAds.forEach((ad) => {
+  generateAds(ads).forEach((ad) => {
     const newAd = cardAd.cloneNode(true);
 
     const adsList = newAd.querySelector('.popup__features');
@@ -23,9 +21,9 @@ const generateCards = () => {
     adPhotos.innerHTML = '';
 
     for (let i = 0; i < ad.photos.length; i++) {
-      const duplicateNewPhoto = newPhoto.cloneNode(true);
-      duplicateNewPhoto.src = ad.photos[i];
-      adPhotos.appendChild(duplicateNewPhoto);
+      const newPhotoContainer = newPhoto.cloneNode(true);
+      newPhotoContainer.src = ad.photos[i];
+      adPhotos.appendChild(newPhotoContainer);
     }
 
     features.forEach((featureListItem) => {
@@ -36,27 +34,15 @@ const generateCards = () => {
       }
     });
 
-    let housingType = '';
+    const mapEnglishTypeToRussian = {
+      flat: 'Квартира',
+      bungalow: 'Бунгало',
+      house: 'Дом',
+      palace: 'Дворец',
+      hotel: 'Отель'
+    };
 
-    switch(ad.type) {
-      case 'flat':
-        housingType = 'Квартира';
-        break;
-      case 'bungalow':
-        housingType = 'Бунгало';
-        break;
-      case 'house':
-        housingType = 'Дом';
-        break;
-      case 'palace':
-        housingType = 'Дворец';
-        break;
-      case 'hotel':
-        housingType = 'Отель';
-        break;
-    }
-
-    newAd.querySelector('.popup__type').textContent = housingType;
+    newAd.querySelector('.popup__type').textContent = mapEnglishTypeToRussian[ad.type];
     newAd.querySelector('.popup__avatar').src = ad.author;
     newAd.querySelector('.popup__title').textContent = ad.title;
     newAd.querySelector('.popup__text--address').textContent = `${ad.address.lat}, ${ad.address.lng}`;
