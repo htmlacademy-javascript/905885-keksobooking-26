@@ -2,11 +2,23 @@ const adForm = document.querySelector('.ad-form');
 const formFieldsets = adForm.querySelectorAll('fieldset');
 
 const typeHousing = adForm.querySelector('#type');
+const price = adForm.querySelector('#price');
 
 const roomNumber = adForm.querySelector('#room_number');
 const capacity = adForm.querySelector('#capacity');
 
-const priceByType = {
+const timeIn = adForm.querySelector('#timein');
+const timeOut = adForm.querySelector('#timeout');
+
+const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
+const PRICE_MAX = 100000;
+
+const mapContentLength = {
+  titleMin: 30,
+  titleMax: 100
+};
+
+const mapPriceToType = {
   bungalow: 0,
   flat: 1000,
   hotel: 3000,
@@ -14,11 +26,11 @@ const priceByType = {
   palace: 10000
 };
 
-const roomsByGuests = {
-  '1 комната': ['для 1 гостя'],
-  '2 комнаты': ['для 2 гостей', 'для 1 гостя'],
-  '3 комнаты': ['для 3 гостей', 'для 2 гостей', 'для 1 гостя'],
-  '100 комнат': ['не для гостей']
+const mapRoomsToGuests = {
+  '1': ['1'],
+  '2': ['2', '1'],
+  '3': ['3', '2', '1'],
+  '100': ['0']
 };
 
 const mapFiltersContainer = document.querySelector('.map__filters');
@@ -34,60 +46,57 @@ const pristine = new Pristine(adForm, {
 });
 
 function validateTitle (value) {
-  return value.length >= 30 && value.length <= 100;
+  return value.length >= mapContentLength.titleMin && value.length <= mapContentLength.titleMax;
 }
 
-function validatePriceByType () {
-  return priceByType[typeHousing.value];
+function getPriceByType () {
+  return mapPriceToType[typeHousing.value];
 }
 
 function validatePrice (element) {
-  return element.value >= validatePriceByType() && element.value <= 10000;
+  return element.value >= getPriceByType() && element.value <= PRICE_MAX;
 }
 
-function validatePriceError () {
-  return `Минимальное значение: ${validatePriceByType()}, Максимальное значение: 100000`;
+function getPriceErrorMessage () {
+  return `Минимальное значение: ${getPriceByType()}, Максимальное значение: ${PRICE_MAX}`;
 }
 
 function validateRooms () {
-  return roomsByGuests[roomNumber.value].includes(capacity.value);
+  return mapRoomsToGuests[roomNumber.value].includes(capacity.value);
 }
 
-function validateRoomsError () {
+const getRoomsAmount = () => roomNumber.value === '100' ? `${roomNumber.value} комнат` : `${roomNumber.value} комнаты`;
+
+function getRoomsErrorMessage () {
   return `
-  ${roomNumber.value}
-  ${roomNumber.value === '100 комнат' ? 'не для гостей' : `не ${  capacity.value}`}
+  ${roomNumber.value === '1' ? `${roomNumber.value} комната` : getRoomsAmount()}
+  ${roomNumber.value === '100' ? 'не для гостей' : `не для ${capacity.value} гостей`}
   `;
 }
 
 pristine.addValidator(
   adForm.querySelector('#title'),
   validateTitle,
-  'От 30 до 100 символов'
+  TITLE_ERROR_MESSAGE
 );
 
 pristine.addValidator(
   adForm.querySelector('#price'),
   validatePrice,
-  validatePriceError
+  getPriceErrorMessage
 );
 
 pristine.addValidator(
   adForm.querySelector('#room_number'),
   validateRooms,
-  validateRoomsError
+  getRoomsErrorMessage
 );
 
 pristine.addValidator(
   adForm.querySelector('#capacity'),
   validateRooms,
-  validateRoomsError
+  getRoomsErrorMessage
 );
-
-adForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  pristine.validate();
-});
 
 const deactivateForm = () => {
   adForm.classList.add('ad-form--disabled');
@@ -112,6 +121,45 @@ const activateForm = () => {
 
   formFieldsets.forEach((formFieldset) => {
     formFieldset.disabled = false;
+  });
+
+  const priceEvent = typeHousing.addEventListener('change', () => {
+    price.placeholder = mapPriceToType[typeHousing.value];
+    pristine.validate(price);
+  });
+
+  const roomsEvent = roomNumber.addEventListener('change', () => {
+    pristine.validate(roomNumber);
+    pristine.validate(capacity);
+  });
+
+  const capacityEvent = capacity.addEventListener('change', () => {
+    pristine.validate(capacity);
+    pristine.validate(roomNumber);
+  });
+
+  const timeInEvent = timeIn.addEventListener('change', () => {
+    timeOut.value = timeIn.value;
+  });
+
+  const timeOutEvent = timeOut.addEventListener('change', () => {
+    timeIn.value = timeOut.value;
+  });
+
+  adForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+
+    const isValid = pristine.validate();
+
+    if (isValid) {
+      typeHousing.removeEventListener(priceEvent);
+      roomNumber.removeEventListener(roomsEvent);
+      capacity.removeEventListener(capacityEvent);
+      timeIn.removeEventListener(timeInEvent);
+      timeOut.removeEventListener(timeOutEvent);
+    }
+
+    pristine.validate();
   });
 };
 
