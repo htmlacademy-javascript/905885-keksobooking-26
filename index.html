@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="leaflet/leaflet.css">
+  <link rel="stylesheet" href="nouislider/nouislider.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <title>Кексобукинг</title>
 </head>
@@ -105,7 +107,7 @@
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="5000"  minlength="0" maxlength="100000" required data-pristine-required-message="Обязательное поле">
+          <input id="price" name="price" type="number" placeholder="1000" required data-pristine-required-message="Обязательное поле">
           <div class="ad-form__slider"></div>
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
@@ -133,9 +135,9 @@
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="capacity">Количество мест</label>
           <select id="capacity" name="capacity" required data-pristine-required-message="Обязательное поле">
-            <option value="3" selected>для 3 гостей</option>
+            <option value="3">для 3 гостей</option>
             <option value="2">для 2 гостей</option>
-            <option value="1">для 1 гостя</option>
+            <option value="1" selected>для 1 гостя</option>
             <option value="0">не для гостей</option>
           </select><br>
         </fieldset>
@@ -228,6 +230,8 @@
       <button type="button" class="error__button">Попробовать снова</button>
     </div>
   </template>
+  <script src="leaflet/leaflet.js"></script>
+  <script src="nouislider/nouislider.js"></script>
   <script src="pristine/pristine.min.js"></script>
   <script src="js/main.js" type="module"></script>
 </body>
