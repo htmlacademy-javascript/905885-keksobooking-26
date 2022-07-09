@@ -42,6 +42,19 @@ const FEATURES = [
   'conditioner'
 ];
 
+const TITLES = [
+  'Уютное местечко',
+  'Просто объявление',
+  'Приглашаю к себе',
+  'Объявление',
+  'Как дома',
+  'Я вас жду',
+  'Лучшее место',
+  'Все для отдыха',
+  'Скорее сюда',
+  'Чего же ты ждешь'
+];
+
 const PHOTOS = [
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/duonguyen-8LrGtIxxa4w.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg',
@@ -60,7 +73,7 @@ const generateLocation = () => {
 
 const generateAd = () => ({
   author: getRandomArrayElement(AVATARS),
-  title: 'Объявление!',
+  title: getRandomArrayElement(TITLES),
   address: (generateLocation()),
   price: getRandomInteger(10000, 100000),
   type: getRandomArrayElement(TYPES),
@@ -73,4 +86,6 @@ const generateAd = () => ({
   photos: generateArrayList(PHOTOS)
 });
 
-export {generateAd};
+const generateAds = (count) => Array.from({length: count}, generateAd);
+
+export {generateAd, generateAds};
