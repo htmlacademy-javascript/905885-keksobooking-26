@@ -1,17 +1,53 @@
 import {activateForm, deactivateForm} from './form.js';
-import {adsContainer, generateCards} from './card.js';
+import {generateCards} from './card.js';
+import {getData} from './interaction.js';
+import {showAlert} from './util.js';
+
+const TOKYO_CENTER_LAT = 35.6938401;
+const TOKYO_CENTER_LNG = 139.7035494;
+const CARDS_COUNT = 10;
 
 const address = document.querySelector('#address');
 
 deactivateForm();
 
-const map = L.map('map-canvas')
+const map = L.map('map-canvas');
+
+const pinIcon = L.icon ({
+  iconUrl: './img/pin.svg',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+const markerGroup = L.layerGroup().addTo(map);
+
+const createMarker = (ad) => {
+  const marker = L.marker({
+    lat: ad.location.lat,
+    lng: ad.location.lng
+  },
+  {
+    pinIcon,
+  }
+  );
+
+  marker
+    .addTo(markerGroup)
+    .bindPopup(generateCards(ad));
+};
+
+const onAdsFetch = (ads) => {
+  ads.slice(0, CARDS_COUNT).forEach((ad) => createMarker(ad));
+};
+
+map
   .on('load', () => {
     activateForm();
+    getData(onAdsFetch, showAlert);
   })
   .setView({
-    lat: 35.6938401,
-    lng: 139.7035494
+    lat: TOKYO_CENTER_LAT,
+    lng: TOKYO_CENTER_LNG
   }, 10);
 
 L.tileLayer(
@@ -27,16 +63,10 @@ const mainPinIcon = L.icon ({
   iconAnchor: [26, 52],
 });
 
-const pinIcon = L.icon ({
-  iconUrl: './img/pin.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-});
-
 const mainPinMarker = L.marker(
   {
-    lat: 35.6938401,
-    lng: 139.7035494
+    lat: TOKYO_CENTER_LAT,
+    lng: TOKYO_CENTER_LNG
   },
   {
     draggable: true,
@@ -44,29 +74,10 @@ const mainPinMarker = L.marker(
   },
 );
 
-const markerGroup = L.layerGroup().addTo(map);
-
-const createMarker = (ad) => {
-  const marker = L.marker({
-    lat: ad.address.lat,
-    lng: ad.address.lng
-  },
-  {
-    pinIcon,
-  }
-  );
-
-  marker
-    .addTo(markerGroup)
-    .bindPopup(generateCards(ad));
-};
-
-adsContainer.forEach((ad) => {
-  createMarker(ad);
-});
-
 mainPinMarker.addTo(map);
 
 mainPinMarker.on('moveend', (evt) => {
   address.value = `${evt.target.getLatLng().lat}, ${evt.target.getLatLng().lng}`;
 });
+
+export {map, mainPinIcon, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG};
