@@ -1,6 +1,6 @@
 import {activateForm, deactivateForm} from './form.js';
-import {generateCards} from './card.js';
-import {getData} from './interaction.js';
+import {generateCard} from './card.js';
+import {getAds} from './api.js';
 import {showAlert} from './util.js';
 
 const TOKYO_CENTER_LAT = 35.6938401;
@@ -33,7 +33,7 @@ const createMarker = (ad) => {
 
   marker
     .addTo(markerGroup)
-    .bindPopup(generateCards(ad));
+    .bindPopup(generateCard(ad));
 };
 
 const onAdsFetch = (ads) => {
@@ -43,7 +43,7 @@ const onAdsFetch = (ads) => {
 map
   .on('load', () => {
     activateForm();
-    getData(onAdsFetch, showAlert);
+    getAds(onAdsFetch, showAlert);
   })
   .setView({
     lat: TOKYO_CENTER_LAT,
@@ -80,4 +80,4 @@ mainPinMarker.on('moveend', (evt) => {
   address.value = `${evt.target.getLatLng().lat}, ${evt.target.getLatLng().lng}`;
 });
 
-export {map, mainPinIcon, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG};
+export {map, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG};

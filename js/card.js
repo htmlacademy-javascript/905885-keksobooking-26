@@ -1,6 +1,6 @@
 const cardAd = document.querySelector('#card').content.querySelector('.popup');
 
-const generateCards = (ad) => {
+const generateCard = (ad) => {
   const newAd = cardAd.cloneNode(true);
 
   const adsList = newAd.querySelector('.popup__features');
@@ -30,7 +30,7 @@ const generateCards = (ad) => {
     adPhotos.appendChild(newPhotoContainer);
   }
 
-  const mapEnglishTypeToRussian = {
+  const MapEnglishTypeToRussian = {
     flat: 'Квартира',
     bungalow: 'Бунгало',
     house: 'Дом',
@@ -38,16 +38,16 @@ const generateCards = (ad) => {
     hotel: 'Отель'
   };
 
-  newAd.querySelector('.popup__type').textContent = mapEnglishTypeToRussian[ad.offer.type];
+  newAd.querySelector('.popup__type').textContent = MapEnglishTypeToRussian[ad.offer.type];
   newAd.querySelector('.popup__avatar').src = ad.author.avatar;
   newAd.querySelector('.popup__title').textContent = ad.offer.title;
   newAd.querySelector('.popup__text--address').textContent = `${ad.location.lat}, ${ad.location.lng}`;
   newAd.querySelector('.popup__text--price').textContent = `${ad.offer.price} ₽/ночь`;
   newAd.querySelector('.popup__text--capacity').textContent = `${ad.offer.rooms} комнаты для ${ad.offer.guests} гостей`;
-  newAd.querySelector('.popup__text--time').textContent = `Заезд после ${ad.checkin}, выезд до ${ad.offer.checkout}`;
+  newAd.querySelector('.popup__text--time').textContent = `Заезд после ${ad.offer.checkin}, выезд до ${ad.offer.checkout}`;
   newAd.querySelector('.popup__description').textContent = ad.offer.description;
 
   return newAd;
 };
 
-export {generateCards};
+export {generateCard};

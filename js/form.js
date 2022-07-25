@@ -1,5 +1,5 @@
-import {sendData} from './interaction.js';
-// import {map, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
+import {sendAd} from './api.js';
+import {map, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
 
 const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
 const MAX_PRICE = 100000;
@@ -29,23 +29,23 @@ const resetButton = adForm.querySelector('.ad-form__reset');
 
 // Поля фильтрации
 
-const mapFilters = document.querySelector('.map__filters');
-const mapFiltersHousingType = mapFilters.querySelector('#housing-type');
-const mapFiltersHousingPrice = mapFilters.querySelector('#housing-price');
-const mapFiltersHousingRooms = mapFilters.querySelector('#housing-rooms');
-const mapFiltersHousingGuests = mapFilters.querySelector('#housing-guests');
-const mapFiltersFeaturesContainer = mapFilters.querySelectorAll('.map__checkbox');
+const mapFilter = document.querySelector('.map__filters');
+const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
+const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
+const mapFiltersHousingRooms = mapFilter.querySelector('#housing-rooms');
+const mapFiltersHousingGuests = mapFilter.querySelector('#housing-guests');
+const mapFiltersFeaturesContainer = mapFilter.querySelectorAll('.map__checkbox');
 //
 
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
-const titleLength = {
-  Min: 30,
-  Max: 100
+const TitleLength = {
+  MIN: 30,
+  MAX: 100
 };
 
-const mapPriceToType = {
+const MapTypeToPrice = {
   bungalow: 0,
   flat: 1000,
   hotel: 3000,
@@ -59,18 +59,23 @@ const roomsCapacity = {
 };
 
 const mapRoomsToGuestsCount = {
-  '1': ['1'],
-  '2': ['2', '1'],
-  '3': ['3', '2', '1'],
-  '100': ['0']
+  1: ['1'],
+  2: ['2', '1'],
+  3: ['3', '2', '1'],
+  100: ['0']
+};
+
+const SubmitButtonState = {
+  active: 'Публикация...',
+  inactive: 'Опубликовать'
 };
 
 noUiSlider.create(sliderElement, {
   range: {
-    min: mapPriceToType[typeHousing.value],
+    min: MapTypeToPrice[typeHousing.value],
     max: MAX_PRICE
   },
-  start: mapPriceToType[typeHousing.value],
+  start: MapTypeToPrice[typeHousing.value],
   step: 100,
   connect: 'lower',
   format: {
@@ -108,30 +113,20 @@ const pristineImage = new Pristine(adForm, {
   errorTextClass: 'ad-form__error-text',
 });
 
-function validateTitle (value) {
-  return value.length >= titleLength.Min && value.length <= titleLength.Max;
-}
+const validateTitle = (value) => value.length >= TitleLength.MIN && value.length <= TitleLength.MAX;
 
-function validatePrice () {
-  return price.value >= mapPriceToType[typeHousing.value] && price.value <= MAX_PRICE;
-}
+const validatePrice = () => price.value >= MapTypeToPrice[typeHousing.value] && price.value <= MAX_PRICE;
 
-function getPriceErrorMessage () {
-  return `Минимальное значение: ${mapPriceToType[typeHousing.value]}, Максимальное значение: ${MAX_PRICE}`;
-}
+const getPriceErrorMessage = () => `Минимальное значение: ${MapTypeToPrice[typeHousing.value]}, Максимальное значение: ${MAX_PRICE}`;
 
-function validateRooms () {
-  return mapRoomsToGuestsCount[roomNumber.value].includes(capacity.value);
-}
+const validateRooms = () => mapRoomsToGuestsCount[roomNumber.value].includes(capacity.value);
 
 const getRoomsAmount = () => roomNumber.value === '100' ? `${roomNumber.value} комнат` : `${roomNumber.value} комнаты`;
 
-function getRoomsErrorMessage () {
-  return `
+const getRoomsErrorMessage = () => `
   ${roomNumber.value === roomsCapacity.min ? `${roomNumber.value} комната` : getRoomsAmount()}
   ${roomNumber.value === roomsCapacity.max ? 'не для гостей' : `не для ${capacity.value} гостей`}
   `;
-}
 
 pristine.addValidator(
   adForm.querySelector('#title'),
@@ -183,21 +178,21 @@ const activateForm = () => {
   });
 };
 
-const addTypeHousingEvent = () => {
-  price.placeholder = mapPriceToType[typeHousing.value];
+const onTypeHousingChange = () => {
+  price.placeholder = MapTypeToPrice[typeHousing.value];
 
   sliderElement.noUiSlider.updateOptions({
     range: {
-      min: mapPriceToType[typeHousing.value],
+      min: MapTypeToPrice[typeHousing.value],
       max: MAX_PRICE
     },
-    start: mapPriceToType[typeHousing.value]
+    start: MapTypeToPrice[typeHousing.value]
   });
 
   pristine.validate(price);
 };
 
-typeHousing.addEventListener('change', addTypeHousingEvent);
+typeHousing.addEventListener('change', onTypeHousingChange);
 
 const addRoomsEvent = () => {
   pristine.validate(roomNumber);
@@ -225,17 +220,17 @@ const addTimeOutEvent = () => {
 
 timeOut.addEventListener('change', addTimeOutEvent);
 
-const blockSubmitButton = () => {
+const disableSubmitButton = () => {
   submitButton.disabled = true;
-  submitButton.textContent = 'Публикация...';
+  submitButton.textContent = SubmitButtonState.active;
+
+  setTimeout(() => {
+    submitButton.disabled = false;
+    submitButton.textContent = SubmitButtonState.inactive;
+  }, MESSAGE_SHOW_TIME);
 };
 
-const unblockSubmitButton = () => {
-  submitButton.disabled = false;
-  submitButton.textContent = 'Опубликовать';
-};
-
-const returnToOriginalState = () => {
+const setInitialState  = () => {
   featuresContainer.forEach((feature) => {
     feature.checked = false;
   });
@@ -261,13 +256,18 @@ const returnToOriginalState = () => {
   mapFiltersFeaturesContainer.forEach((feature) => {
     feature.checked = false;
   });
+
+  map.closePopup();
+
+  const newLatLng = new L.LatLng(TOKYO_CENTER_LAT, TOKYO_CENTER_LNG);
+  mainPinMarker.setLatLng(newLatLng);
 };
 
 resetButton.addEventListener('click', () => {
-  returnToOriginalState();
+  setInitialState();
 });
 
-const getSuccessMessage = () => {
+const showSuccessMessage = () => {
   const success = successMessage.cloneNode(true);
   document.body.appendChild(success);
 
@@ -276,7 +276,7 @@ const getSuccessMessage = () => {
   }, MESSAGE_SHOW_TIME);
 };
 
-const getErrorMessage = () => {
+const showErrorMessage = () => {
   const error = errorMessage.cloneNode(true);
   const errorCloseButton = error.querySelector('.error__button');
 
@@ -291,7 +291,7 @@ const getErrorMessage = () => {
   }, MESSAGE_SHOW_TIME);
 };
 
-const setUserFormSubmit = () => {
+const addFormSubmitListener = () => {
 
   adForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
@@ -299,20 +299,19 @@ const setUserFormSubmit = () => {
     const isValidImage = pristineImage.validate();
 
     if (isValid && isValidImage) {
-      sendData(
+      sendAd(
         () => {
-          getSuccessMessage();
-          returnToOriginalState();
-          blockSubmitButton();
+          showSuccessMessage();
+          setInitialState();
+          disableSubmitButton();
         },
         () => {
-          getErrorMessage();
-          unblockSubmitButton();
+          showErrorMessage();
         },
         new FormData(evt.target),
       );
 
-      typeHousing.removeEventListener('change', addTypeHousingEvent);
+      typeHousing.removeEventListener('change', onTypeHousingChange);
       roomNumber.removeEventListener('change', addRoomsEvent);
       capacity.removeEventListener('change', addCapacityEvent);
       timeIn.removeEventListener('change', addTimeInEvent);
@@ -324,4 +323,4 @@ const setUserFormSubmit = () => {
   });
 };
 
-export {setUserFormSubmit, deactivateForm, activateForm};
+export {addFormSubmitListener, deactivateForm, activateForm};
