@@ -5,6 +5,7 @@ const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
 const MAX_PRICE = 100000;
 const MESSAGE_SHOW_TIME = 5000;
 const FILTER_DEFAULT = 'any';
+const sliderPriceStep = 100;
 
 const adForm = document.querySelector('.ad-form');
 const formFieldsets = adForm.querySelectorAll('fieldset');
@@ -76,7 +77,7 @@ noUiSlider.create(sliderElement, {
     max: MAX_PRICE
   },
   start: MapTypeToPrice[typeHousing.value],
-  step: 100,
+  step: sliderPriceStep,
   connect: 'lower',
   format: {
     to: function (value) {
