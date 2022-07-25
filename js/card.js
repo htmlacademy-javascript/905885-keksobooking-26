@@ -1,15 +1,22 @@
-import {generateAds} from './ads.js';
-
 const cardAd = document.querySelector('#card').content.querySelector('.popup');
-const adsContainer = generateAds(10);
 
-const generateCards = (ad) => {
-
+const generateCard = (ad) => {
   const newAd = cardAd.cloneNode(true);
 
   const adsList = newAd.querySelector('.popup__features');
   const features = adsList.querySelectorAll('.popup__feature');
-  const featureModifiers = ad.features.map((feature) => `popup__feature--${feature}`);
+
+  if (ad.offer.features) {
+    const featureModifiers = ad.offer.features.map((feature) => `popup__feature--${feature}`);
+
+    features.forEach((featureListItem) => {
+      const featureModifier = featureListItem.classList[1];
+
+      if (!featureModifiers.includes(featureModifier)) {
+        featureListItem.remove();
+      }
+    });
+  }
 
   const adPhotos = newAd.querySelector('.popup__photos');
   const photos = adPhotos.querySelector('.popup__photo');
@@ -17,21 +24,13 @@ const generateCards = (ad) => {
   const newPhoto = photos.cloneNode(true);
   adPhotos.innerHTML = '';
 
-  for (let i = 0; i < ad.photos.length; i++) {
+  for (let i = 0; i < ad.offer.photos.length; i++) {
     const newPhotoContainer = newPhoto.cloneNode(true);
-    newPhotoContainer.src = ad.photos[i];
+    newPhotoContainer.src = ad.offer.photos[i];
     adPhotos.appendChild(newPhotoContainer);
   }
 
-  features.forEach((featureListItem) => {
-    const featureModifier = featureListItem.classList[1];
-
-    if (!featureModifiers.includes(featureModifier)) {
-      featureListItem.remove();
-    }
-  });
-
-  const mapEnglishTypeToRussian = {
+  const MapEnglishTypeToRussian = {
     flat: 'Квартира',
     bungalow: 'Бунгало',
     house: 'Дом',
@@ -39,17 +38,16 @@ const generateCards = (ad) => {
     hotel: 'Отель'
   };
 
-  newAd.querySelector('.popup__type').textContent = mapEnglishTypeToRussian[ad.type];
-  newAd.querySelector('.popup__avatar').src = ad.author;
-  newAd.querySelector('.popup__title').textContent = ad.title;
-  newAd.querySelector('.popup__text--address').textContent = `${ad.address.lat}, ${ad.address.lng}`;
-  newAd.querySelector('.popup__text--price').textContent = `${ad.price} ₽/ночь`;
-  newAd.querySelector('.popup__text--capacity').textContent = `${ad.rooms} комнаты для ${ad.guests} гостей`;
-  newAd.querySelector('.popup__text--time').textContent = `Заезд после ${ad.checkin}, выезд до ${ad.checkout}`;
-  newAd.querySelector('.popup__description').textContent = ad.description;
+  newAd.querySelector('.popup__type').textContent = MapEnglishTypeToRussian[ad.offer.type];
+  newAd.querySelector('.popup__avatar').src = ad.author.avatar;
+  newAd.querySelector('.popup__title').textContent = ad.offer.title;
+  newAd.querySelector('.popup__text--address').textContent = `${ad.location.lat}, ${ad.location.lng}`;
+  newAd.querySelector('.popup__text--price').textContent = `${ad.offer.price} ₽/ночь`;
+  newAd.querySelector('.popup__text--capacity').textContent = `${ad.offer.rooms} комнаты для ${ad.offer.guests} гостей`;
+  newAd.querySelector('.popup__text--time').textContent = `Заезд после ${ad.offer.checkin}, выезд до ${ad.offer.checkout}`;
+  newAd.querySelector('.popup__description').textContent = ad.offer.description;
 
   return newAd;
-
 };
 
-export {adsContainer, generateCards};
+export {generateCard};
