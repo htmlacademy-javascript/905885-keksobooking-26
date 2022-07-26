@@ -17,19 +17,19 @@ const DefaultFilter = {
 const getAdRank = (ad) => {
   let rank = 0;
 
-  if (ad.offer.type === (typeHousingSelect.value || DefaultFilter.TYPE)) {
+  if (ad.offer.type === typeHousingSelect.value || ad.offer.type === DefaultFilter.TYPE) {
     rank++;
   }
 
-  if (ad.offer.price === (housingPriceSelect.value || DefaultFilter.PRICE)) {
+  if (ad.offer.price === housingPriceSelect.value || ad.offer.price === DefaultFilter.PRICE) {
     rank++;
   }
 
-  if (ad.offer.rooms === (housingRoomsSelect.value || DefaultFilter.ROOMS)) {
+  if (ad.offer.rooms === housingRoomsSelect.value || ad.offer.rooms === DefaultFilter.ROOMS) {
     rank++;
   }
 
-  if (ad.offer.guests === (housingGuestsSelect.value || DefaultFilter.GUESTS)) {
+  if (ad.offer.guests === housingGuestsSelect.value || ad.offer.guests === DefaultFilter.GUESTS) {
     rank++;
   }
 
