@@ -1,7 +1,10 @@
-import {activateForm, deactivateForm} from './form.js';
-import {generateCard} from './card.js';
+import {activateForm, deactivateForm, setFilterChange} from './form.js';
+import {compareCards, generateCard} from './card.js';
 import {getAds} from './api.js';
 import {showAlert} from './util.js';
+import {debounce} from './util.js';
+
+const RERENDER_DELAY = 500;
 
 const TOKYO_CENTER_LAT = 35.6938401;
 const TOKYO_CENTER_LNG = 139.7035494;
@@ -37,13 +40,23 @@ const createMarker = (ad) => {
 };
 
 const onAdsFetch = (ads) => {
-  ads.slice(0, CARDS_COUNT).forEach((ad) => createMarker(ad));
+  ads
+    // .slice()
+    // .sort(compareCards)
+    .slice(0, CARDS_COUNT)
+    .forEach((ad) => createMarker(ad));
 };
 
 map
   .on('load', () => {
     activateForm();
-    getAds(onAdsFetch, showAlert);
+    getAds((ads) => {
+      onAdsFetch(ads);
+      setFilterChange(debounce(
+        () => onAdsFetch(ads),
+        RERENDER_DELAY,
+      ));
+    },showAlert);
   })
   .setView({
     lat: TOKYO_CENTER_LAT,
@@ -80,4 +93,4 @@ mainPinMarker.on('moveend', (evt) => {
   address.value = `${evt.target.getLatLng().lat}, ${evt.target.getLatLng().lng}`;
 });
 
-export {map, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG};
+export {map, markerGroup, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG, onAdsFetch};

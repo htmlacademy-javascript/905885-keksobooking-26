@@ -1,11 +1,11 @@
 import {sendAd} from './api.js';
-import {map, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
+import {map, markerGroup, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
 
 const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
 const MAX_PRICE = 100000;
 const MESSAGE_SHOW_TIME = 5000;
 const FILTER_DEFAULT = 'any';
-const sliderPriceStep = 100;
+const SLIDER_PRICE_STEP = 100;
 
 const adForm = document.querySelector('.ad-form');
 const formFieldsets = adForm.querySelectorAll('fieldset');
@@ -31,22 +31,27 @@ const resetButton = adForm.querySelector('.ad-form__reset');
 // Поля фильтрации
 
 const mapFilter = document.querySelector('.map__filters');
+const mapFilters = mapFilter.querySelectorAll('.map__filter');
+
 const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
 const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
 const mapFiltersHousingRooms = mapFilter.querySelector('#housing-rooms');
 const mapFiltersHousingGuests = mapFilter.querySelector('#housing-guests');
 const mapFiltersFeaturesContainer = mapFilter.querySelectorAll('.map__checkbox');
+
 //
 
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
+
+//
 
 const TitleLength = {
   MIN: 30,
   MAX: 100
 };
 
-const MapTypeToPrice = {
+const mapTypeToPrice = {
   bungalow: 0,
   flat: 1000,
   hotel: 3000,
@@ -54,9 +59,9 @@ const MapTypeToPrice = {
   palace: 10000
 };
 
-const roomsCapacity = {
-  min: '1',
-  max: '100'
+const RoomsCapacity = {
+  MIN: '1',
+  MAX: '100'
 };
 
 const mapRoomsToGuestsCount = {
@@ -67,17 +72,17 @@ const mapRoomsToGuestsCount = {
 };
 
 const SubmitButtonState = {
-  active: 'Публикация...',
-  inactive: 'Опубликовать'
+  ACTIVE: 'Публикация...',
+  INACTIVE: 'Опубликовать'
 };
 
 noUiSlider.create(sliderElement, {
   range: {
-    min: MapTypeToPrice[typeHousing.value],
+    min: mapTypeToPrice[typeHousing.value],
     max: MAX_PRICE
   },
-  start: MapTypeToPrice[typeHousing.value],
-  step: sliderPriceStep,
+  start: mapTypeToPrice[typeHousing.value],
+  step: SLIDER_PRICE_STEP,
   connect: 'lower',
   format: {
     to: function (value) {
@@ -116,17 +121,17 @@ const pristineImage = new Pristine(adForm, {
 
 const validateTitle = (value) => value.length >= TitleLength.MIN && value.length <= TitleLength.MAX;
 
-const validatePrice = () => price.value >= MapTypeToPrice[typeHousing.value] && price.value <= MAX_PRICE;
+const validatePrice = () => price.value >= mapTypeToPrice[typeHousing.value] && price.value <= MAX_PRICE;
 
-const getPriceErrorMessage = () => `Минимальное значение: ${MapTypeToPrice[typeHousing.value]}, Максимальное значение: ${MAX_PRICE}`;
+const getPriceErrorMessage = () => `Минимальное значение: ${mapTypeToPrice[typeHousing.value]}, Максимальное значение: ${MAX_PRICE}`;
 
-const validateRooms = () => mapRoomsToGuestsCount[roomNumber.value].includes(capacity.value);
+const validateRoomsCount = () => mapRoomsToGuestsCount[roomNumber.value].includes(capacity.value);
 
 const getRoomsAmount = () => roomNumber.value === '100' ? `${roomNumber.value} комнат` : `${roomNumber.value} комнаты`;
 
 const getRoomsErrorMessage = () => `
-  ${roomNumber.value === roomsCapacity.min ? `${roomNumber.value} комната` : getRoomsAmount()}
-  ${roomNumber.value === roomsCapacity.max ? 'не для гостей' : `не для ${capacity.value} гостей`}
+  ${roomNumber.value === RoomsCapacity.MIN ? `${roomNumber.value} комната` : getRoomsAmount()}
+  ${roomNumber.value === RoomsCapacity.MAX ? 'не для гостей' : `не для ${capacity.value} гостей`}
   `;
 
 pristine.addValidator(
@@ -143,13 +148,13 @@ pristine.addValidator(
 
 pristine.addValidator(
   adForm.querySelector('#room_number'),
-  validateRooms,
+  validateRoomsCount,
   getRoomsErrorMessage
 );
 
 pristine.addValidator(
   adForm.querySelector('#capacity'),
-  validateRooms,
+  validateRoomsCount,
   getRoomsErrorMessage
 );
 
@@ -180,14 +185,14 @@ const activateForm = () => {
 };
 
 const onTypeHousingChange = () => {
-  price.placeholder = MapTypeToPrice[typeHousing.value];
+  price.placeholder = mapTypeToPrice[typeHousing.value];
 
   sliderElement.noUiSlider.updateOptions({
     range: {
-      min: MapTypeToPrice[typeHousing.value],
+      min: mapTypeToPrice[typeHousing.value],
       max: MAX_PRICE
     },
-    start: MapTypeToPrice[typeHousing.value]
+    start: mapTypeToPrice[typeHousing.value]
   });
 
   pristine.validate(price);
@@ -223,12 +228,19 @@ timeOut.addEventListener('change', addTimeOutEvent);
 
 const disableSubmitButton = () => {
   submitButton.disabled = true;
-  submitButton.textContent = SubmitButtonState.active;
+  submitButton.textContent = SubmitButtonState.ACTIVE;
 
   setTimeout(() => {
     submitButton.disabled = false;
-    submitButton.textContent = SubmitButtonState.inactive;
+    submitButton.textContent = SubmitButtonState.INACTIVE;
   }, MESSAGE_SHOW_TIME);
+};
+
+const formDefault = {
+  typeHousing: 'flat',
+  time: '12:00',
+  guests: '1',
+  capacity: '1'
 };
 
 const setInitialState  = () => {
@@ -240,14 +252,14 @@ const setInitialState  = () => {
   formAddress.value = '';
   formTitle.value = '';
 
-  typeHousing.value = 'flat';
+  typeHousing.value = formDefault.typeHousing;
   price.value = 1000;
 
-  timeIn.value = '12:00';
-  timeOut.value = '12:00';
+  timeIn.value = formDefault.time;
+  timeOut.value = formDefault.time;
 
-  roomNumber.value = '1';
-  capacity.value = '1';
+  roomNumber.value = formDefault.guests;
+  capacity.value = formDefault.capacity;
 
   mapFiltersHousingType.value = FILTER_DEFAULT;
   mapFiltersHousingPrice.value = FILTER_DEFAULT;
@@ -267,6 +279,16 @@ const setInitialState  = () => {
 resetButton.addEventListener('click', () => {
   setInitialState();
 });
+
+const setFilterChange = (cb) => {
+  mapFilters.forEach((filter) => {
+    filter.addEventListener('change', () => {
+      map.closePopup();
+      markerGroup.clearLayers();
+      cb();
+    });
+  });
+};
 
 const showSuccessMessage = () => {
   const success = successMessage.cloneNode(true);
@@ -324,4 +346,4 @@ const addFormSubmitListener = () => {
   });
 };
 
-export {addFormSubmitListener, deactivateForm, activateForm};
+export {addFormSubmitListener, deactivateForm, activateForm, setFilterChange};

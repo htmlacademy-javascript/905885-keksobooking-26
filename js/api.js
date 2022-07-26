@@ -1,28 +1,28 @@
-const FetchMethods = {
+const FetchMethod = {
   GET: 'GET',
   POST: 'POST'
 };
 
-const FetchLinks = {
+const FetchLink = {
   GET: 'https://26.javascript.pages.academy/keksobooking/data',
   POST: 'https://26.javascript.pages.academy/keksobooking'
 };
 
-const FetchErrors = {
+const FetchError = {
   GET_ERROR: 'Ошибка загрузки данных',
   POST_ERROR: 'Не удалось отправить форму. Попробуйте ещё раз'
 };
 
 const getAds = (onSuccess, onFail) => {
   fetch(
-    FetchLinks.GET,
+    FetchLink.GET,
     {
-      method: FetchMethods.GET,
+      method: FetchMethod.GET,
     },
   )
     .then((response) => {
       if (!response.ok) {
-        onFail(FetchErrors.GET_ERROR);
+        return onFail(FetchError.GET_ERROR);
       }
 
       return response;
@@ -37,20 +37,20 @@ const getAds = (onSuccess, onFail) => {
 
 const sendAd = (onSuccess, onFail, body) => {
   fetch(
-    FetchLinks.POST,
+    FetchLink.POST,
     {
-      method: FetchMethods.POST,
+      method: FetchMethod.POST,
       body,
     },
   )
     .then((response) => {
       if (!response.ok) {
-        return onFail(FetchErrors.POST_ERROR);
+        return onFail(FetchError.POST_ERROR);
       }
       return onSuccess();
     })
     .catch(() => {
-      onFail(FetchErrors.POST_ERROR);
+      onFail(FetchError.POST_ERROR);
     });
 };
 
