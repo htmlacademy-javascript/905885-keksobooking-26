@@ -1,5 +1,6 @@
 import {activateForm, deactivateForm, setFilterChange} from './form.js';
-import {generateCard, compareCards} from './card.js';
+import {generateCard} from './card.js';
+import {getFilteredAds} from './filter.js';
 import {getAds} from './api.js';
 import {showAlert} from './util.js';
 import {debounce} from './util.js';
@@ -42,7 +43,7 @@ const createMarker = (ad) => {
 const onAdsFetch = (ads) => {
   ads
     .slice()
-    .sort(compareCards)
+    .filter(getFilteredAds)
     .slice(0, CARDS_COUNT)
     .forEach((ad) => createMarker(ad));
 };

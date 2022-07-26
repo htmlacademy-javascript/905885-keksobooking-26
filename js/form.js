@@ -1,4 +1,5 @@
 import {sendAd} from './api.js';
+import {setNewFilters} from './filter.js';
 import {map, markerGroup, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
 
 const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
@@ -31,7 +32,6 @@ const resetButton = adForm.querySelector('.ad-form__reset');
 // Поля фильтрации
 
 const mapFilter = document.querySelector('.map__filters');
-const mapFilters = mapFilter.querySelectorAll('.map__filter');
 
 const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
 const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
@@ -281,12 +281,11 @@ resetButton.addEventListener('click', () => {
 });
 
 const setFilterChange = (cb) => {
-  mapFilters.forEach((filter) => {
-    filter.addEventListener('change', () => {
-      map.closePopup();
-      markerGroup.clearLayers();
-      cb();
-    });
+  mapFilter.addEventListener('change', () => {
+    setNewFilters();
+    map.closePopup();
+    markerGroup.clearLayers();
+    cb();
   });
 };
 
