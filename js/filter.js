@@ -21,9 +21,21 @@ const filterState = {
 };
 
 const checkPrice = {
-  low: (value) => value < HousingPrice.LOW,
-  middle: (value) => value >= HousingPrice.LOW && value <= HousingPrice.HIGH,
-  high: (value) => value > HousingPrice.HIGH
+  low: (value) => {
+    if (value <= HousingPrice.LOW) {
+      return value;
+    }
+  },
+  middle: (value) => {
+    if (value >= HousingPrice.LOW && value <= HousingPrice.HIGH) {
+      return value;
+    }
+  },
+  high: (value) => {
+    if (value >= HousingPrice.HIGH) {
+      return value;
+    }
+  },
 };
 
 const setNewFilters = () => {
