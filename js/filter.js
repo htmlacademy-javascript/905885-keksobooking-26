@@ -3,7 +3,7 @@ const typeHousingSelect = filterForm.querySelector('#housing-type');
 const housingPriceSelect = filterForm.querySelector('#housing-price');
 const housingRoomsSelect = filterForm.querySelector('#housing-rooms');
 const housingGuestsSelect = filterForm.querySelector('#housing-guests');
-const featuresCheckbox = filterForm.querySelectorAll('.map__checkbox');
+const featuresCheckboxs = filterForm.querySelectorAll('.map__checkbox');
 
 const DEFAULT_SELECT_VALUE = 'any';
 
@@ -32,9 +32,11 @@ const setNewFilters = () => {
   filterState.guests = housingGuestsSelect.value;
   filterState.price = housingPriceSelect.value;
 
-  featuresCheckbox.forEach((feature) => {
-    if (feature.checked) {
-      filterState.features.push(feature);
+  featuresCheckboxs.forEach((feature) => {
+    const isChecked = feature.checked;
+
+    if (isChecked) {
+      filterState.features.push(feature.value);
     }
   });
 };
@@ -42,24 +44,29 @@ const setNewFilters = () => {
 const getFilteredAds = (ad) => {
   const filterContainer = [];
 
-  if (filterState.type !== DEFAULT_SELECT_VALUE) {
+  if (ad.type !== filterState.type && filterState.type !== DEFAULT_SELECT_VALUE) {
     filterContainer.push(filterState.type === ad.offer.type);
   }
 
   if (filterState.rooms !== DEFAULT_SELECT_VALUE) {
-    filterContainer.push(filterState.rooms === ad.offer.rooms);
+    filterContainer.push(+filterState.rooms === ad.offer.rooms);
   }
 
   if (filterState.guests !== DEFAULT_SELECT_VALUE) {
-    filterContainer.push(filterState.guests === ad.offer.guests);
+    filterContainer.push(+filterState.guests === ad.offer.guests);
   }
 
   if (filterState.price !== DEFAULT_SELECT_VALUE) {
     filterContainer.push(checkPrice[filterState.price](ad.offer.price));
   }
 
-  if (filterState.features !== DEFAULT_SELECT_VALUE) {
-    filterContainer.push(ad.offer.features);
+  if (!ad.offer.features && filterState.features.length) {
+    filterContainer.push(false);
+  }
+
+  if (filterState.features.length !== 0 && ad.offer.features) {
+    const hasAllFeatures = filterState.features.every((feature) => ad.offer.features.includes(feature));
+    filterContainer.push(hasAllFeatures);
   }
 
   return filterContainer.every((value) => value);

@@ -9,8 +9,8 @@ const FetchLink = {
 };
 
 const FetchError = {
-  GET_ERROR: 'Ошибка загрузки данных',
-  POST_ERROR: 'Не удалось отправить форму. Попробуйте ещё раз'
+  GET: 'Ошибка загрузки данных',
+  POST: 'Не удалось отправить форму. Попробуйте ещё раз'
 };
 
 const getAds = (onSuccess, onFail) => {
@@ -22,7 +22,7 @@ const getAds = (onSuccess, onFail) => {
   )
     .then((response) => {
       if (!response.ok) {
-        return onFail(FetchError.GET_ERROR);
+        return onFail(FetchError.GET);
       }
 
       return response;
@@ -45,12 +45,12 @@ const sendAd = (onSuccess, onFail, body) => {
   )
     .then((response) => {
       if (!response.ok) {
-        return onFail(FetchError.POST_ERROR);
+        return onFail(FetchError.POST);
       }
       return onSuccess();
     })
     .catch(() => {
-      onFail(FetchError.POST_ERROR);
+      onFail(FetchError.POST);
     });
 };
 

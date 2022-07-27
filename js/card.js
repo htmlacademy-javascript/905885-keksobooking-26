@@ -1,5 +1,13 @@
 const cardAd = document.querySelector('#card').content.querySelector('.popup');
 
+const mapEnglishTypeToRussian = {
+  flat: 'Квартира',
+  bungalow: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец',
+  hotel: 'Отель'
+};
+
 const generateCard = (ad) => {
   const newAd = cardAd.cloneNode(true);
 
@@ -26,19 +34,13 @@ const generateCard = (ad) => {
   const newPhoto = photos.cloneNode(true);
   adPhotos.innerHTML = '';
 
-  for (let i = 0; i < ad.offer.photos.length; i++) {
-    const newPhotoContainer = newPhoto.cloneNode(true);
-    newPhotoContainer.src = ad.offer.photos[i];
-    adPhotos.appendChild(newPhotoContainer);
+  if (ad.offer.photos) {
+    for (let i = 0; i < ad.offer.photos.length; i++) {
+      const newPhotoContainer = newPhoto.cloneNode(true);
+      newPhotoContainer.src = ad.offer.photos[i];
+      adPhotos.appendChild(newPhotoContainer);
+    }
   }
-
-  const mapEnglishTypeToRussian = {
-    flat: 'Квартира',
-    bungalow: 'Бунгало',
-    house: 'Дом',
-    palace: 'Дворец',
-    hotel: 'Отель'
-  };
 
   newAd.querySelector('.popup__type').textContent = mapEnglishTypeToRussian[ad.offer.type];
   newAd.querySelector('.popup__avatar').src = ad.author.avatar;

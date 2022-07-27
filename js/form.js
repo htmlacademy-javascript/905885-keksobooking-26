@@ -1,11 +1,11 @@
 import {sendAd} from './api.js';
 import {setNewFilters} from './filter.js';
-import {map, markerGroup, mainPinMarker, TOKYO_CENTER_LAT, TOKYO_CENTER_LNG} from './map.js';
+import {map, markerGroup, mainPinMarker, InitialCoord} from './map.js';
 
 const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
 const MAX_PRICE = 100000;
 const MESSAGE_SHOW_TIME = 5000;
-const FILTER_DEFAULT = 'any';
+const ADS_FILTER_DEFAULT = 'any';
 const SLIDER_PRICE_STEP = 100;
 
 const adForm = document.querySelector('.ad-form');
@@ -20,7 +20,7 @@ const capacity = adForm.querySelector('#capacity');
 const timeIn = adForm.querySelector('#timein');
 const timeOut = adForm.querySelector('#timeout');
 
-const featuresContainer = adForm.querySelectorAll('.features__checkbox');
+const formFeatures = adForm.querySelectorAll('.features__checkbox');
 const formDescription = adForm.querySelector('#description');
 const formAddress = adForm.querySelector('#address');
 const formTitle = adForm.querySelector('#title');
@@ -35,16 +35,15 @@ const mapFilter = document.querySelector('.map__filters');
 
 const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
 const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
-const mapFiltersHousingRooms = mapFilter.querySelector('#housing-rooms');
-const mapFiltersHousingGuests = mapFilter.querySelector('#housing-guests');
-const mapFiltersFeaturesContainer = mapFilter.querySelectorAll('.map__checkbox');
+const mapFiltersHousingRoomsCount = mapFilter.querySelector('#housing-rooms');
+const mapFiltersHousingGuestsCount = mapFilter.querySelector('#housing-guests');
+const mapFiltersFeatures = mapFilter.querySelectorAll('.map__checkbox');
 
-//
+const mapFiltersContainer = document.querySelector('.map__filters');
+const mapFiltersSelects = mapFiltersContainer.querySelectorAll('select');
 
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
-
-//
 
 const TitleLength = {
   MIN: 30,
@@ -76,6 +75,14 @@ const SubmitButtonState = {
   INACTIVE: 'Опубликовать'
 };
 
+const formDefaultState = {
+  typeHousing: 'flat',
+  time: '12:00',
+  guests: '1',
+  capacity: '1',
+  price: 1000
+};
+
 noUiSlider.create(sliderElement, {
   range: {
     min: mapTypeToPrice[typeHousing.value],
@@ -85,21 +92,14 @@ noUiSlider.create(sliderElement, {
   step: SLIDER_PRICE_STEP,
   connect: 'lower',
   format: {
-    to: function (value) {
-      return value.toFixed(0);
-    },
-    from: function (value) {
-      return parseFloat(value);
-    },
+    to: (value) => value.toFixed(0),
+    from: (value) => parseFloat(value),
   },
 });
 
 sliderElement.noUiSlider.on('update', () => {
   price.value = sliderElement.noUiSlider.get();
 });
-
-const mapFiltersContainer = document.querySelector('.map__filters');
-const mapFiltersSelects = mapFiltersContainer.querySelectorAll('select');
 
 const pristine = new Pristine(adForm, {
   classTo: 'ad-form__element',
@@ -175,6 +175,8 @@ const activateForm = () => {
   adForm.classList.remove('ad-form--disabled');
   mapFiltersContainer.classList.remove('map__filters--disabled');
 
+  formAddress.value = `${InitialCoord.LAT}, ${InitialCoord.LNG}`;
+
   mapFiltersSelects.forEach((mapFilterSelect) => {
     mapFilterSelect.disabled = false;
   });
@@ -200,31 +202,31 @@ const onTypeHousingChange = () => {
 
 typeHousing.addEventListener('change', onTypeHousingChange);
 
-const addRoomsEvent = () => {
+const onRoomsCountChange = () => {
   pristine.validate(roomNumber);
   pristine.validate(capacity);
 };
 
-roomNumber.addEventListener('change', addRoomsEvent);
+roomNumber.addEventListener('change', onRoomsCountChange);
 
-const addCapacityEvent = () => {
+const onCapacityCountChange = () => {
   pristine.validate(capacity);
   pristine.validate(roomNumber);
 };
 
-capacity.addEventListener('change', addCapacityEvent);
+capacity.addEventListener('change', onCapacityCountChange);
 
-const addTimeInEvent = () => {
+const onTimeInChange = () => {
   timeOut.value = timeIn.value;
 };
 
-timeIn.addEventListener('change', addTimeInEvent);
+timeIn.addEventListener('change', onTimeInChange);
 
-const addTimeOutEvent = () => {
+const onTimeOutChange = () => {
   timeIn.value = timeOut.value;
 };
 
-timeOut.addEventListener('change', addTimeOutEvent);
+timeOut.addEventListener('change', onTimeOutChange);
 
 const disableSubmitButton = () => {
   submitButton.disabled = true;
@@ -236,15 +238,8 @@ const disableSubmitButton = () => {
   }, MESSAGE_SHOW_TIME);
 };
 
-const formDefault = {
-  typeHousing: 'flat',
-  time: '12:00',
-  guests: '1',
-  capacity: '1'
-};
-
 const setInitialState  = () => {
-  featuresContainer.forEach((feature) => {
+  formFeatures.forEach((feature) => {
     feature.checked = false;
   });
 
@@ -252,31 +247,34 @@ const setInitialState  = () => {
   formAddress.value = '';
   formTitle.value = '';
 
-  typeHousing.value = formDefault.typeHousing;
-  price.value = 1000;
+  formAddress.value = `${InitialCoord.LAT}, ${InitialCoord.LNG}`;
 
-  timeIn.value = formDefault.time;
-  timeOut.value = formDefault.time;
+  typeHousing.value = formDefaultState.typeHousing;
+  price.value = formDefaultState.price;
 
-  roomNumber.value = formDefault.guests;
-  capacity.value = formDefault.capacity;
+  timeIn.value = formDefaultState.time;
+  timeOut.value = formDefaultState.time;
 
-  mapFiltersHousingType.value = FILTER_DEFAULT;
-  mapFiltersHousingPrice.value = FILTER_DEFAULT;
-  mapFiltersHousingRooms.value = FILTER_DEFAULT;
-  mapFiltersHousingGuests.value = FILTER_DEFAULT;
+  roomNumber.value = formDefaultState.guests;
+  capacity.value = formDefaultState.capacity;
 
-  mapFiltersFeaturesContainer.forEach((feature) => {
+  mapFiltersHousingType.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingPrice.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingRoomsCount.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingGuestsCount.value = ADS_FILTER_DEFAULT;
+
+  mapFiltersFeatures.forEach((feature) => {
     feature.checked = false;
   });
 
   map.closePopup();
 
-  const newLatLng = new L.LatLng(TOKYO_CENTER_LAT, TOKYO_CENTER_LNG);
+  const newLatLng = new L.LatLng(InitialCoord.LAT, InitialCoord.LNG);
   mainPinMarker.setLatLng(newLatLng);
 };
 
-resetButton.addEventListener('click', () => {
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
   setInitialState();
 });
 
@@ -334,10 +332,10 @@ const addFormSubmitListener = () => {
       );
 
       typeHousing.removeEventListener('change', onTypeHousingChange);
-      roomNumber.removeEventListener('change', addRoomsEvent);
-      capacity.removeEventListener('change', addCapacityEvent);
-      timeIn.removeEventListener('change', addTimeInEvent);
-      timeOut.removeEventListener('change', addTimeOutEvent);
+      roomNumber.removeEventListener('change', onRoomsCountChange);
+      capacity.removeEventListener('change', onCapacityCountChange);
+      timeIn.removeEventListener('change', onTimeInChange);
+      timeOut.removeEventListener('change', onTimeOutChange);
     }
 
     pristine.validate();

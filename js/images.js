@@ -1,4 +1,9 @@
+const MAX_PHOTOS_COUNT = 1;
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+const ImageSize = {
+  WIDTH: '70',
+  HEIGHT: '70'
+};
 
 const avatarField = document.querySelector('.ad-form__field input[type=file]');
 const avatarPreview = document.querySelector('.ad-form-header__preview img');
@@ -10,7 +15,7 @@ avatarField.addEventListener('change', () => {
   const file = avatarField.files[0];
   const fileName = file.name.toLowerCase();
 
-  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+  const matches = FILE_TYPES.some((fileType) => fileName.endsWith(fileType));
 
   if (matches) {
     avatarPreview.src = URL.createObjectURL(file);
@@ -25,12 +30,12 @@ imageField.addEventListener('change', () => {
 
   if (matches) {
 
-    if (imagePreview.childNodes.length < 1) {
+    if (imagePreview.childNodes.length < MAX_PHOTOS_COUNT) {
       const image = document.createElement('img');
-      imagePreview.appendChild(image);
+      image.width = ImageSize.WIDTH;
+      image.height = ImageSize.HEIGHT;
       image.src = URL.createObjectURL(file);
-      image.width = '70';
-      image.height = '70';
+      imagePreview.appendChild(image);
     }
 
     if (imagePreview.childNodes.length > 0) {
