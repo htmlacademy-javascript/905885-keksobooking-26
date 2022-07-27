@@ -1,38 +1,5 @@
 const ALERT_SHOW_TIME = 5000;
-
-const getRandomInteger = (min, max) => {
-  const minNumber = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
-  const maxNumber = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
-
-  const randomNumber = Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
-
-  return randomNumber;
-};
-
-const getRandomFloat = (min, max, amount) => {
-  const minNumber = Math.min(Math.abs(min), Math.abs(max));
-  const maxNumber = Math.max(Math.abs(min), Math.abs(max));
-  const randomNumber = Math.random() * (maxNumber - minNumber) + minNumber;
-
-  return +randomNumber.toFixed(amount);
-};
-
-const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
-
-const generateArrayList = (elements) => {
-  const arrayLength = getRandomInteger(0, elements.length);
-  const tempElements = [];
-
-  for (let i = 0; i < arrayLength; i++) {
-    const arrayElement = getRandomArrayElement(elements);
-
-    if (!tempElements.includes(arrayElement)) {
-      tempElements.push(arrayElement);
-    }
-  }
-
-  return tempElements;
-};
+const TIMEOUT_DELAY_DEFAULT = 500;
 
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
@@ -56,4 +23,13 @@ const showAlert = (message) => {
   }, ALERT_SHOW_TIME);
 };
 
-export {getRandomInteger, getRandomFloat, getRandomArrayElement, generateArrayList, showAlert};
+function debounce (callback, timeoutDelay = TIMEOUT_DELAY_DEFAULT) {
+  let timeoutId;
+
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+}
+
+export {showAlert, debounce};
