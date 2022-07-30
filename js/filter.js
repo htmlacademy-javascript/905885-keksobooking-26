@@ -1,10 +1,3 @@
-const filterForm = document.querySelector('.map__filters');
-const typeHousingSelect = filterForm.querySelector('#housing-type');
-const housingPriceSelect = filterForm.querySelector('#housing-price');
-const housingRoomsSelect = filterForm.querySelector('#housing-rooms');
-const housingGuestsSelect = filterForm.querySelector('#housing-guests');
-const featuresCheckboxs = filterForm.querySelectorAll('.map__checkbox');
-
 const DEFAULT_SELECT_VALUE = 'any';
 
 const HousingPrice = {
@@ -25,6 +18,13 @@ const checkPrice = {
   middle: (value) => value >= HousingPrice.LOW && value <= HousingPrice.HIGH,
   high: (value) => value > HousingPrice.HIGH
 };
+
+const filterForm = document.querySelector('.map__filters');
+const typeHousingSelect = filterForm.querySelector('#housing-type');
+const housingPriceSelect = filterForm.querySelector('#housing-price');
+const housingRoomsSelect = filterForm.querySelector('#housing-rooms');
+const housingGuestsSelect = filterForm.querySelector('#housing-guests');
+const featuresCheckboxs = filterForm.querySelectorAll('.map__checkbox');
 
 const setNewFilters = () => {
   filterState.type = typeHousingSelect.value;

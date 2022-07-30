@@ -1,49 +1,14 @@
-import {sendAd} from './api.js';
+import {sendAd, getAds} from './api.js';
 import {setNewFilters} from './filter.js';
-import {map, markerGroup, mainPinMarker, InitialCoord} from './map.js';
+import {map, markerGroup, mainPinMarker, InitialCoord, createMarker, CARDS_COUNT} from './map.js';
+import {showAlert, isEscapeKey} from './util.js';
+import {addImageUploadListener, avatarField, imageField, avatarPreview, imagePreviewArea} from './images.js';
 
 const TITLE_ERROR_MESSAGE = 'От 30 до 100 символов';
 const MAX_PRICE = 100000;
 const MESSAGE_SHOW_TIME = 5000;
 const ADS_FILTER_DEFAULT = 'any';
 const SLIDER_PRICE_STEP = 100;
-
-const adForm = document.querySelector('.ad-form');
-const formFieldsets = adForm.querySelectorAll('fieldset');
-
-const typeHousing = adForm.querySelector('#type');
-const price = adForm.querySelector('#price');
-
-const roomNumber = adForm.querySelector('#room_number');
-const capacity = adForm.querySelector('#capacity');
-
-const timeIn = adForm.querySelector('#timein');
-const timeOut = adForm.querySelector('#timeout');
-
-const formFeatures = adForm.querySelectorAll('.features__checkbox');
-const formDescription = adForm.querySelector('#description');
-const formAddress = adForm.querySelector('#address');
-const formTitle = adForm.querySelector('#title');
-
-const sliderElement = adForm.querySelector('.ad-form__slider');
-const submitButton = adForm.querySelector('.ad-form__submit');
-const resetButton = adForm.querySelector('.ad-form__reset');
-
-// Поля фильтрации
-
-const mapFilter = document.querySelector('.map__filters');
-
-const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
-const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
-const mapFiltersHousingRoomsCount = mapFilter.querySelector('#housing-rooms');
-const mapFiltersHousingGuestsCount = mapFilter.querySelector('#housing-guests');
-const mapFiltersFeatures = mapFilter.querySelectorAll('.map__checkbox');
-
-const mapFiltersContainer = document.querySelector('.map__filters');
-const mapFiltersSelects = mapFiltersContainer.querySelectorAll('select');
-
-const successMessage = document.querySelector('#success').content.querySelector('.success');
-const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
 const TitleLength = {
   MIN: 30,
@@ -82,6 +47,43 @@ const formDefaultState = {
   capacity: '1',
   price: 1000
 };
+
+const adForm = document.querySelector('.ad-form');
+const formFieldsets = adForm.querySelectorAll('fieldset');
+
+const typeHousing = adForm.querySelector('#type');
+const price = adForm.querySelector('#price');
+
+const roomNumber = adForm.querySelector('#room_number');
+const capacity = adForm.querySelector('#capacity');
+
+const timeIn = adForm.querySelector('#timein');
+const timeOut = adForm.querySelector('#timeout');
+
+const formFeatures = adForm.querySelectorAll('.features__checkbox');
+const formDescription = adForm.querySelector('#description');
+const formAddress = adForm.querySelector('#address');
+const formTitle = adForm.querySelector('#title');
+
+const sliderElement = adForm.querySelector('.ad-form__slider');
+const submitButton = adForm.querySelector('.ad-form__submit');
+const resetButton = adForm.querySelector('.ad-form__reset');
+
+// Поля фильтрации
+
+const mapFilter = document.querySelector('.map__filters');
+
+const mapFiltersHousingType = mapFilter.querySelector('#housing-type');
+const mapFiltersHousingPrice = mapFilter.querySelector('#housing-price');
+const mapFiltersHousingRoomsCount = mapFilter.querySelector('#housing-rooms');
+const mapFiltersHousingGuestsCount = mapFilter.querySelector('#housing-guests');
+const mapFiltersFeatures = mapFilter.querySelectorAll('.map__checkbox');
+
+const mapFiltersContainer = document.querySelector('.map__filters');
+const mapFiltersSelects = mapFiltersContainer.querySelectorAll('select');
+
+const successMessage = document.querySelector('#success').content.querySelector('.success');
+const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
 noUiSlider.create(sliderElement, {
   range: {
@@ -184,6 +186,9 @@ const activateForm = () => {
   formFieldsets.forEach((formFieldset) => {
     formFieldset.disabled = false;
   });
+
+  avatarField.addEventListener('change', addImageUploadListener);
+  imageField.addEventListener('change', addImageUploadListener);
 };
 
 const onTypeHousingChange = () => {
@@ -239,6 +244,8 @@ const disableSubmitButton = () => {
 };
 
 const setInitialState  = () => {
+  const imagePreview = imagePreviewArea.querySelector('img');
+
   formFeatures.forEach((feature) => {
     feature.checked = false;
   });
@@ -263,9 +270,18 @@ const setInitialState  = () => {
   mapFiltersHousingRoomsCount.value = ADS_FILTER_DEFAULT;
   mapFiltersHousingGuestsCount.value = ADS_FILTER_DEFAULT;
 
+  avatarPreview.src = 'img/muffin-grey.svg';
+  imagePreviewArea.removeChild(imagePreview);
+
   mapFiltersFeatures.forEach((feature) => {
     feature.checked = false;
   });
+
+  getAds((ads) => {
+    ads
+      .slice(0, CARDS_COUNT)
+      .forEach((ad) => createMarker(ad));
+  },showAlert);
 
   map.closePopup();
 
@@ -287,12 +303,37 @@ const setFilterChange = (cb) => {
   });
 };
 
+function onEscKeydownListener () {
+  const body = document.querySelector('body');
+  const success = document.querySelector('.success');
+  const error = document.querySelector('.error');
+
+  if (isEscapeKey) {
+    if (success || error) {
+      body.removeChild(body.lastChild);
+    }
+  }
+}
+
+const onMouseClickListener = (evt) => {
+  const withinBoundaries = evt.composedPath().includes(evt.target);
+
+  if (withinBoundaries) {
+    evt.target.remove();
+  }
+};
+
 const showSuccessMessage = () => {
   const success = successMessage.cloneNode(true);
   document.body.appendChild(success);
 
+  document.addEventListener('keydown', onEscKeydownListener);
+  success.addEventListener('click', onMouseClickListener);
+
   setTimeout(() => {
     success.remove();
+    document.removeEventListener('keydown', onEscKeydownListener);
+    success.removeEventListener('click', onMouseClickListener);
   }, MESSAGE_SHOW_TIME);
 };
 
@@ -302,12 +343,17 @@ const showErrorMessage = () => {
 
   document.body.appendChild(error);
 
+  document.addEventListener('keydown', onEscKeydownListener);
+  error.addEventListener('click', onMouseClickListener);
+
   errorCloseButton.addEventListener('click', () => {
     error.remove();
   });
 
   setTimeout(() => {
     error.remove();
+    document.removeEventListener('keydown', onEscKeydownListener);
+    error.removeEventListener('click', onMouseClickListener);
   }, MESSAGE_SHOW_TIME);
 };
 
@@ -319,11 +365,11 @@ const addFormSubmitListener = () => {
     const isValidImage = pristineImage.validate();
 
     if (isValid && isValidImage) {
+      disableSubmitButton();
       sendAd(
         () => {
           showSuccessMessage();
           setInitialState();
-          disableSubmitButton();
         },
         () => {
           showErrorMessage();
@@ -336,6 +382,11 @@ const addFormSubmitListener = () => {
       capacity.removeEventListener('change', onCapacityCountChange);
       timeIn.removeEventListener('change', onTimeInChange);
       timeOut.removeEventListener('change', onTimeOutChange);
+      avatarField.removeEventListener('change', addImageUploadListener);
+      imageField.removeEventListener('change', addImageUploadListener);
+      document.removeEventListener('keydown', onEscKeydownListener);
+      successMessage.removeEventListener('change', onMouseClickListener);
+      errorMessage.removeEventListener('change', onMouseClickListener);
     }
 
     pristine.validate();

@@ -117,4 +117,4 @@ mainPinMarker.on('moveend', (evt) => {
   address.value = `${evt.target.getLatLng().lat}, ${evt.target.getLatLng().lng}`;
 });
 
-export {map, markerGroup, mainPinMarker, InitialCoord, onAdsFetch};
+export {map, markerGroup, mainPinMarker, InitialCoord, createMarker, onAdsFetch, CARDS_COUNT};

@@ -9,40 +9,33 @@ const avatarField = document.querySelector('.ad-form__field input[type=file]');
 const avatarPreview = document.querySelector('.ad-form-header__preview img');
 
 const imageField = document.querySelector('.ad-form__upload input[type=file]');
-const imagePreview = document.querySelector('.ad-form__photo');
+const imagePreviewArea = document.querySelector('.ad-form__photo');
 
-avatarField.addEventListener('change', () => {
-  const file = avatarField.files[0];
+const addImageUploadListener = (evt) => {
+  const file = evt.target.files[0];
   const fileName = file.name.toLowerCase();
 
   const matches = FILE_TYPES.some((fileType) => fileName.endsWith(fileType));
 
   if (matches) {
-    avatarPreview.src = URL.createObjectURL(file);
-  }
-});
+    if (evt.target === imageField) {
+      if (imagePreviewArea.childNodes.length < MAX_PHOTOS_COUNT) {
+        const image = document.createElement('img');
+        image.width = ImageSize.WIDTH;
+        image.height = ImageSize.HEIGHT;
+        image.src = URL.createObjectURL(file);
+        imagePreviewArea.appendChild(image);
+      }
 
-imageField.addEventListener('change', () => {
-  const file = imageField.files[0];
-  const fileName = file.name.toLowerCase();
+      if (imagePreviewArea.childNodes.length > 0) {
+        const image = imagePreviewArea.querySelector('img');
 
-  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
-
-  if (matches) {
-
-    if (imagePreview.childNodes.length < MAX_PHOTOS_COUNT) {
-      const image = document.createElement('img');
-      image.width = ImageSize.WIDTH;
-      image.height = ImageSize.HEIGHT;
-      image.src = URL.createObjectURL(file);
-      imagePreview.appendChild(image);
-    }
-
-    if (imagePreview.childNodes.length > 0) {
-      const image = imagePreview.querySelector('img');
-
-      image.src = URL.createObjectURL(file);
+        image.src = URL.createObjectURL(file);
+      }
+    } else {
+      avatarPreview.src = URL.createObjectURL(file);
     }
   }
+};
 
-});
+export {addImageUploadListener, avatarField, imageField, avatarPreview, imagePreviewArea};

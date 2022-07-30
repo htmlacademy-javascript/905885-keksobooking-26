@@ -1,6 +1,8 @@
 const ALERT_SHOW_TIME = 5000;
 const TIMEOUT_DELAY_DEFAULT = 500;
 
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = '100';
@@ -32,4 +34,4 @@ function debounce (callback, timeoutDelay = TIMEOUT_DELAY_DEFAULT) {
   };
 }
 
-export {showAlert, debounce};
+export {showAlert, debounce, isEscapeKey};
