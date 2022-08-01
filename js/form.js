@@ -207,7 +207,7 @@ const setFilterChange = (cb) => {
   });
 };
 
-function onEscKeydownListener () {
+const onEscKeydownListener = () => {
   const body = document.querySelector('body');
   const success = document.querySelector('.success');
   const error = document.querySelector('.error');
@@ -217,7 +217,7 @@ function onEscKeydownListener () {
       body.removeChild(body.lastChild);
     }
   }
-}
+};
 
 const onMouseClickListener = (evt) => {
   const withinBoundaries = evt.composedPath().includes(evt.target);
