@@ -1,4 +1,4 @@
-import {activateForm, deactivateForm, setFilterChange, addFormListners} from './form.js';
+import {activateForm, deactivateForm, setFilterChange, addFormListeners} from './form.js';
 import {generateCard} from './card.js';
 import {getFilteredAds} from './filter.js';
 import {getAds} from './api.js';
@@ -74,7 +74,7 @@ const onAdsFetch = (ads) => {
 map
   .on('load', () => {
     activateForm();
-    addFormListners();
+    addFormListeners();
     getAds((ads) => {
       onAdsFetch(ads);
       setFilterChange(debounce(

@@ -293,7 +293,7 @@ const onTimeOutChange = () => {
   timeIn.value = timeOut.value;
 };
 
-const addFormListners = () => {
+const addFormListeners = () => {
   typeHousing.addEventListener('change', onTypeHousingChange);
   roomNumber.addEventListener('change', onRoomsCountChange);
   capacity.addEventListener('change', onCapacityCountChange);
@@ -352,17 +352,19 @@ const setInitialState  = () => {
     feature.checked = false;
   });
 
-  addFormListners();
+  addFormListeners();
+
+  map.closePopup();
 
   setInitialFilters();
+
+  markerGroup.clearLayers();
 
   getAds((ads) => {
     ads
       .slice(0, CARDS_COUNT)
       .forEach((ad) => createMarker(ad));
   },showAlert);
-
-  map.closePopup();
 
   const newLatLng = new L.LatLng(InitialCoord.LAT, InitialCoord.LNG);
   mainPinMarker.setLatLng(newLatLng);
@@ -401,4 +403,4 @@ const addFormSubmitListener = () => {
   });
 };
 
-export {addFormSubmitListener, deactivateForm, activateForm, setFilterChange, addFormListners};
+export {addFormSubmitListener, deactivateForm, activateForm, setFilterChange, addFormListeners};
