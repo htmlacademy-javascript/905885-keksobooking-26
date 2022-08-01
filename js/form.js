@@ -1,5 +1,5 @@
 import {sendAd, getAds} from './api.js';
-import {setNewFilters} from './filter.js';
+import {setNewFilters, setInitialFilters} from './filter.js';
 import {map, markerGroup, mainPinMarker, InitialCoord, createMarker, CARDS_COUNT} from './map.js';
 import {showAlert, isEscapeKey} from './util.js';
 import {addImageUploadListener, avatarField, imageField, avatarPreview, imagePreviewArea} from './images.js';
@@ -186,52 +186,7 @@ const activateForm = () => {
   formFieldsets.forEach((formFieldset) => {
     formFieldset.disabled = false;
   });
-
-  avatarField.addEventListener('change', addImageUploadListener);
-  imageField.addEventListener('change', addImageUploadListener);
 };
-
-const onTypeHousingChange = () => {
-  price.placeholder = mapTypeToPrice[typeHousing.value];
-
-  sliderElement.noUiSlider.updateOptions({
-    range: {
-      min: mapTypeToPrice[typeHousing.value],
-      max: MAX_PRICE
-    },
-    start: mapTypeToPrice[typeHousing.value]
-  });
-
-  pristine.validate(price);
-};
-
-typeHousing.addEventListener('change', onTypeHousingChange);
-
-const onRoomsCountChange = () => {
-  pristine.validate(roomNumber);
-  pristine.validate(capacity);
-};
-
-roomNumber.addEventListener('change', onRoomsCountChange);
-
-const onCapacityCountChange = () => {
-  pristine.validate(capacity);
-  pristine.validate(roomNumber);
-};
-
-capacity.addEventListener('change', onCapacityCountChange);
-
-const onTimeInChange = () => {
-  timeOut.value = timeIn.value;
-};
-
-timeIn.addEventListener('change', onTimeInChange);
-
-const onTimeOutChange = () => {
-  timeIn.value = timeOut.value;
-};
-
-timeOut.addEventListener('change', onTimeOutChange);
 
 const disableSubmitButton = () => {
   submitButton.disabled = true;
@@ -242,57 +197,6 @@ const disableSubmitButton = () => {
     submitButton.textContent = SubmitButtonState.INACTIVE;
   }, MESSAGE_SHOW_TIME);
 };
-
-const setInitialState  = () => {
-  const imagePreview = imagePreviewArea.querySelector('img');
-
-  formFeatures.forEach((feature) => {
-    feature.checked = false;
-  });
-
-  formDescription.value = '';
-  formAddress.value = '';
-  formTitle.value = '';
-
-  formAddress.value = `${InitialCoord.LAT}, ${InitialCoord.LNG}`;
-
-  typeHousing.value = formDefaultState.typeHousing;
-  price.value = formDefaultState.price;
-
-  timeIn.value = formDefaultState.time;
-  timeOut.value = formDefaultState.time;
-
-  roomNumber.value = formDefaultState.guests;
-  capacity.value = formDefaultState.capacity;
-
-  mapFiltersHousingType.value = ADS_FILTER_DEFAULT;
-  mapFiltersHousingPrice.value = ADS_FILTER_DEFAULT;
-  mapFiltersHousingRoomsCount.value = ADS_FILTER_DEFAULT;
-  mapFiltersHousingGuestsCount.value = ADS_FILTER_DEFAULT;
-
-  avatarPreview.src = 'img/muffin-grey.svg';
-  imagePreviewArea.removeChild(imagePreview);
-
-  mapFiltersFeatures.forEach((feature) => {
-    feature.checked = false;
-  });
-
-  getAds((ads) => {
-    ads
-      .slice(0, CARDS_COUNT)
-      .forEach((ad) => createMarker(ad));
-  },showAlert);
-
-  map.closePopup();
-
-  const newLatLng = new L.LatLng(InitialCoord.LAT, InitialCoord.LNG);
-  mainPinMarker.setLatLng(newLatLng);
-};
-
-resetButton.addEventListener('click', (evt) => {
-  evt.preventDefault();
-  setInitialState();
-});
 
 const setFilterChange = (cb) => {
   mapFilter.addEventListener('change', () => {
@@ -357,6 +261,118 @@ const showErrorMessage = () => {
   }, MESSAGE_SHOW_TIME);
 };
 
+const onTypeHousingChange = () => {
+  price.placeholder = mapTypeToPrice[typeHousing.value];
+
+  sliderElement.noUiSlider.updateOptions({
+    range: {
+      min: mapTypeToPrice[typeHousing.value],
+      max: MAX_PRICE
+    },
+    start: mapTypeToPrice[typeHousing.value]
+  });
+
+  pristine.validate(price);
+};
+
+const onRoomsCountChange = () => {
+  pristine.validate(roomNumber);
+  pristine.validate(capacity);
+};
+
+const onCapacityCountChange = () => {
+  pristine.validate(capacity);
+  pristine.validate(roomNumber);
+};
+
+const onTimeInChange = () => {
+  timeOut.value = timeIn.value;
+};
+
+const onTimeOutChange = () => {
+  timeIn.value = timeOut.value;
+};
+
+const addFormListners = () => {
+  typeHousing.addEventListener('change', onTypeHousingChange);
+  roomNumber.addEventListener('change', onRoomsCountChange);
+  capacity.addEventListener('change', onCapacityCountChange);
+  timeIn.addEventListener('change', onTimeInChange);
+  timeOut.addEventListener('change', onTimeOutChange);
+  avatarField.addEventListener('change', addImageUploadListener);
+  imageField.addEventListener('change', addImageUploadListener);
+};
+
+const removeFormListeners = () => {
+  typeHousing.removeEventListener('change', onTypeHousingChange);
+  roomNumber.removeEventListener('change', onRoomsCountChange);
+  capacity.removeEventListener('change', onCapacityCountChange);
+  timeIn.removeEventListener('change', onTimeInChange);
+  timeOut.removeEventListener('change', onTimeOutChange);
+  avatarField.removeEventListener('change', addImageUploadListener);
+  imageField.removeEventListener('change', addImageUploadListener);
+  document.removeEventListener('keydown', onEscKeydownListener);
+  successMessage.removeEventListener('change', onMouseClickListener);
+  errorMessage.removeEventListener('change', onMouseClickListener);
+};
+
+const setInitialState  = () => {
+  const imagePreview = imagePreviewArea.querySelector('img');
+
+  formFeatures.forEach((feature) => {
+    feature.checked = false;
+  });
+
+  formDescription.value = '';
+  formAddress.value = '';
+  formTitle.value = '';
+
+  formAddress.value = `${InitialCoord.LAT}, ${InitialCoord.LNG}`;
+
+  typeHousing.value = formDefaultState.typeHousing;
+  price.value = formDefaultState.price;
+
+  timeIn.value = formDefaultState.time;
+  timeOut.value = formDefaultState.time;
+
+  roomNumber.value = formDefaultState.guests;
+  capacity.value = formDefaultState.capacity;
+
+  mapFiltersHousingType.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingPrice.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingRoomsCount.value = ADS_FILTER_DEFAULT;
+  mapFiltersHousingGuestsCount.value = ADS_FILTER_DEFAULT;
+
+  avatarPreview.src = 'img/muffin-grey.svg';
+  if (imagePreview) {
+    imagePreviewArea.removeChild(imagePreview);
+  }
+
+  mapFiltersFeatures.forEach((feature) => {
+    feature.checked = false;
+  });
+
+  addFormListners();
+
+  setInitialFilters();
+
+  getAds((ads) => {
+    ads
+      .slice(0, CARDS_COUNT)
+      .forEach((ad) => createMarker(ad));
+  },showAlert);
+
+  map.closePopup();
+
+  const newLatLng = new L.LatLng(InitialCoord.LAT, InitialCoord.LNG);
+  mainPinMarker.setLatLng(newLatLng);
+};
+
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+  setInitialState();
+});
+
 const addFormSubmitListener = () => {
 
   adForm.addEventListener('submit', (evt) => {
@@ -377,16 +393,7 @@ const addFormSubmitListener = () => {
         new FormData(evt.target),
       );
 
-      typeHousing.removeEventListener('change', onTypeHousingChange);
-      roomNumber.removeEventListener('change', onRoomsCountChange);
-      capacity.removeEventListener('change', onCapacityCountChange);
-      timeIn.removeEventListener('change', onTimeInChange);
-      timeOut.removeEventListener('change', onTimeOutChange);
-      avatarField.removeEventListener('change', addImageUploadListener);
-      imageField.removeEventListener('change', addImageUploadListener);
-      document.removeEventListener('keydown', onEscKeydownListener);
-      successMessage.removeEventListener('change', onMouseClickListener);
-      errorMessage.removeEventListener('change', onMouseClickListener);
+      removeFormListeners();
     }
 
     pristine.validate();
@@ -394,4 +401,4 @@ const addFormSubmitListener = () => {
   });
 };
 
-export {addFormSubmitListener, deactivateForm, activateForm, setFilterChange};
+export {addFormSubmitListener, deactivateForm, activateForm, setFilterChange, addFormListners};
